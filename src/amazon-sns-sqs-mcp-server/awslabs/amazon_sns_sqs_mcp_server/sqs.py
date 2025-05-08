@@ -76,5 +76,6 @@ def register_sqs_tools(mcp: FastMCP):
             'send_message_batch': {'validator': is_mutative_action_allowed},
             'delete_message': {'validator': is_mutative_action_allowed},
         },
+        skip_param_documentation=True
     )
     sqs_generator.generate()

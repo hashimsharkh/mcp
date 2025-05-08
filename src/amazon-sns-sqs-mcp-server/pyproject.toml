@@ -21,15 +21,15 @@ classifiers = [
 ]
 dependencies = [
     "markdownify>=0.13.1",
-    "mcp[cli]>=1.6.0",
+    "mcp[cli]>=1.8.0",
     "protego>=0.3.1",
     "pydantic>=2.0.0",
     "readabilipy>=0.2.0",
     "requests>=2.32.3",
-    "boto3>=1.37.23",
+    "boto3>=1.38.12",
     "pytest>=8.3.5",
-    "fastmcp>=2.2.5",
-    "aws-service-mcp-generator>=1.0.4",
+    "fastmcp>=2.3.0",
+    "aws-service-mcp-generator>=1.0.5",
 ]
 
 [project.scripts]

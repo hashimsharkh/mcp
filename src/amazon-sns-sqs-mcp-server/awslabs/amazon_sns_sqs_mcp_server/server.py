@@ -19,7 +19,6 @@ mcp = FastMCP(
 register_sns_tools(mcp)
 register_sqs_tools(mcp)
 
-
 def main():
     """Run the MCP server with CLI argument support."""
     parser = argparse.ArgumentParser(

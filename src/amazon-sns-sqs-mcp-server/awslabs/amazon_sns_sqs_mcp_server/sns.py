@@ -83,11 +83,11 @@ def is_unsubscribe_allowed(
         
 
 
-def set_archive_policy_override(mcp: FastMCP, sns_client_getter: BOTO3_CLIENT_GETTER, _: str):
+def set_archive_policy_override(mcp: FastMCP, sns_client_getter: BOTO3_CLIENT_GETTER):
     """Set or remove an archive policy for an SNS FIFO topic."""
 
     @mcp.tool()
-    def handle_set_archive_policy(
+    def set_archive_policy(
         topic_arn: str,
         retention_period_days: int = 7,
         region: str = 'us-east-1',
@@ -137,11 +137,11 @@ def set_archive_policy_override(mcp: FastMCP, sns_client_getter: BOTO3_CLIENT_GE
             }
 
 
-def remove_archive_policy_override(mcp: FastMCP, sns_client_getter: BOTO3_CLIENT_GETTER, _: str):
+def remove_archive_policy_override(mcp: FastMCP, sns_client_getter: BOTO3_CLIENT_GETTER):
     """Remove an archive policy from an SNS FIFO topic."""
 
     @mcp.tool()
-    def handle_remove_archive_policy(
+    def remove_archive_policy(
         topic_arn: str,
         region: str = 'us-east-1',
     ):
@@ -202,8 +202,9 @@ def register_sns_tools(mcp: FastMCP):
             'confirm_subscription': {'validator': is_mutative_action_allowed},
             'publish': {'validator': is_mutative_action_allowed},
             'publish_batch': {'validator': is_mutative_action_allowed},
-            'set_archive_policy': {'func_override': set_archive_policy_override, 'validator': is_mutative_action_allowed},
-            'remove_archive_policy': {'func_override': remove_archive_policy_override, 'validator': is_mutative_action_allowed},
         },
+            skip_param_documentation=True,
     )
+    set_archive_policy_override(mcp, BOTO3_CLIENT_GETTER)
+    remove_archive_policy_override(mcp, BOTO3_CLIENT_GETTER)
     sns_generator.generate()
