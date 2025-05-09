@@ -88,8 +88,7 @@ def register_sns_tools(mcp: FastMCP):
     sns_generator = AWSToolGenerator(
         service_name='sns',
         service_display_name='Amazon SNS',
-        mcp=mcp,
-        tool_configuration={
+        mcp=mcp, tool_configuration={
             'close': {'ignore': True},
             'can_paginate': {'ignore': True},
             'generate_presigned_url': {'ignore': True},
@@ -98,7 +97,7 @@ def register_sns_tools(mcp: FastMCP):
             'create_topic': {'func_override': create_topic_override},
             'delete_topic': {'validator': is_mutative_action_allowed},
             'set_topic_attributes': {'validator': is_mutative_action_allowed},
-            'subscribe': {'validator': is_mutative_action_allowed},
+            'subscribe': {'validator': is_mutative_action_allowed, "documentation_override": "Execute AWS SNS Subscribe. Ensure that you set correct permission policies if required."},
             'unsubscribe': {'validator': is_unsubscribe_allowed},
             'confirm_subscription': {'validator': is_mutative_action_allowed},
             'publish': {'validator': is_mutative_action_allowed},
