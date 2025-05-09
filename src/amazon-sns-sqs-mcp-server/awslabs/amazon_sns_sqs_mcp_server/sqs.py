@@ -1,17 +1,20 @@
 """Amazon SQS tools for the MCP server."""
-import boto3
 from aws_service_mcp_generator.generator import BOTO3_CLIENT_GETTER, AWSToolGenerator
+from awslabs.amazon_sns_sqs_mcp_server.common import (
+    MCP_SERVER_VERSION_TAG,
+    validate_mcp_server_version_tag,
+)
 from awslabs.amazon_sns_sqs_mcp_server.consts import MCP_SERVER_VERSION
-from awslabs.amazon_sns_sqs_mcp_server.common import validate_mcp_server_version_tag, MCP_SERVER_VERSION_TAG
 from mcp.server.fastmcp import FastMCP
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
+
 
 # override create_queue tool to tag resources
 def create_queue_override(mcp: FastMCP, sqs_client_getter: BOTO3_CLIENT_GETTER, _: str):
     """Create an SQS queue with MCP server version tag."""
 
     @mcp.tool()
-    def handle_create_queue(
+    def create_queue(
         queue_name: str,
         attributes: Dict[str, str] = {},
         tags: Dict[str, str] = {},
@@ -21,19 +24,19 @@ def create_queue_override(mcp: FastMCP, sqs_client_getter: BOTO3_CLIENT_GETTER, 
             'QueueName': queue_name,
             'Attributes': attributes.copy(),  # Create a copy to avoid modifying the original
         }
-            
+
         # Set FIFO queue attributes if name ends with .fifo
         if queue_name.endswith(".fifo"):
             create_params['Attributes']["FifoQueue"] = "true"
             create_params["Attributes"]["DeduplicationScope"] = "messageGroup"
             create_params["Attributes"]["FifoThroughputLimit"] = "perMessageGroupId"
-            
+
         # Add MCP server version tag
-        tags_copy = tags.copy() 
+        tags_copy = tags.copy()
         tags_copy[MCP_SERVER_VERSION_TAG] = MCP_SERVER_VERSION
-        
+
         create_params['tags'] = tags_copy
-        
+
         sqs_client = sqs_client_getter(region)
         response = sqs_client.create_queue(**create_params)
         return response
@@ -41,8 +44,8 @@ def create_queue_override(mcp: FastMCP, sqs_client_getter: BOTO3_CLIENT_GETTER, 
 
 # Define validator for SQS resources
 def is_mutative_action_allowed(
-    mcp: FastMCP, sqs_client: boto3.client, kwargs: Dict[str, Any]
-) -> tuple[bool, str]:
+    mcp: FastMCP, sqs_client: Any, kwargs: Dict[str, Any]
+) -> Tuple[bool, str]:
     """Check if the SQS resource being mutated is tagged with mcp_server_version."""
     queue_url = kwargs.get('QueueUrl')
     if queue_url is None or queue_url == '':

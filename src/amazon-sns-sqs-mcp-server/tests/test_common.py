@@ -1,8 +1,7 @@
 """Tests for the common module of amazon-sns-sqs-mcp-server."""
-import pytest
 from awslabs.amazon_sns_sqs_mcp_server.common import (
-    validate_mcp_server_version_tag,
     MCP_SERVER_VERSION_TAG,
+    validate_mcp_server_version_tag,
 )
 
 
@@ -16,7 +15,7 @@ class TestCommonUtils:
         result, message = validate_mcp_server_version_tag(tags)
         assert result is True
         assert message == ''
-    
+
     def test_validate_mcp_server_version_tag_without_tag(self):
         """Test validate_mcp_server_version_tag with tag missing."""
         # Test with tag missing
@@ -24,7 +23,7 @@ class TestCommonUtils:
         result, message = validate_mcp_server_version_tag(tags)
         assert result is False
         assert message == 'mutating a resource without the mcp_server_version tag is not allowed'
-    
+
     def test_validate_mcp_server_version_tag_empty_tags(self):
         """Test validate_mcp_server_version_tag with empty tags."""
         # Test with empty tags

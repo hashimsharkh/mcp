@@ -29,7 +29,7 @@ dependencies = [
     "boto3>=1.38.12",
     "pytest>=8.3.5",
     "fastmcp>=2.3.0",
-    "aws-service-mcp-generator>=1.0.5",
+    "aws-service-mcp-generator>=2.0.1",
 ]
 
 [project.scripts]
