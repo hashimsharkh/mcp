@@ -42,7 +42,6 @@ def create_topic_override(mcp: FastMCP, sns_client_getter: BOTO3_CLIENT_GETTER, 
         response = sns_client.create_topic(**create_params)
         return response
 
-
 # Define validator for SNS resources
 def is_mutative_action_allowed(
     mcp: FastMCP, sns_client: Any, kwargs: Dict[str, Any]
@@ -82,27 +81,58 @@ def is_unsubscribe_allowed(
     except Exception as e:
         return False, str(e)
 
-def register_sns_tools(mcp: FastMCP):
+def register_sns_tools(mcp: FastMCP, disallow_resource_creation: bool = False):
     """Register SNS tools with the MCP server."""
     # Generate SNS tools
+
+    # List of operations to ignore
+    operations_to_ignore = [
+        # Common operations to ignore
+        'close',
+        'can_paginate',
+        'generate_presigned_url',
+        'untag_resource',
+        'tag_resource',
+        # A2P Related operations
+        'create_sms_sandbox_phone_number',
+        'delete_sms_sandbox_phone_number',
+        'get_waiter',
+        'set_sms_attributes',
+        'create_platform_application',
+        'create_platform_endpoint',
+        'delete_endpoint',
+        'delete_platform_application',
+        'remove_permission',
+        'set_endpoint_attributes',
+        'set_platform_application_attributes',
+    ]
+
+    # Create the tool configuration dictionary
+    tool_configuration = {
+        'add_permission': {'name_override': 'add_sns_permission'},
+        'remove_permission': {'name_override': 'remove_sns_permission'},
+        'create_topic': {'func_override': create_topic_override},
+        'delete_topic': {'validator': is_mutative_action_allowed},
+        'set_topic_attributes': {'validator': is_mutative_action_allowed},
+        'subscribe': {'validator': is_mutative_action_allowed, "documentation_override": "Execute AWS SNS Subscribe. Ensure that you set correct permission policies if required."},
+        'unsubscribe': {'validator': is_unsubscribe_allowed},
+        'confirm_subscription': {'validator': is_mutative_action_allowed},
+        'publish': {'validator': is_mutative_action_allowed},
+        'publish_batch': {'validator': is_mutative_action_allowed},
+    }
+    
+    # Add all operations to ignore to the tool configuration
+    for operation in operations_to_ignore:
+        tool_configuration[operation] = {'ignore': True}
+    
+    if disallow_resource_creation:
+        tool_configuration['create_topic'] = {'ignore': True}
+    
     sns_generator = AWSToolGenerator(
         service_name='sns',
         service_display_name='Amazon SNS',
-        mcp=mcp, tool_configuration={
-            'close': {'ignore': True},
-            'can_paginate': {'ignore': True},
-            'generate_presigned_url': {'ignore': True},
-            'untag_resource': {'ignore': True},
-            'tag_resource': {'ignore': True},
-            'create_topic': {'func_override': create_topic_override},
-            'delete_topic': {'validator': is_mutative_action_allowed},
-            'set_topic_attributes': {'validator': is_mutative_action_allowed},
-            'subscribe': {'validator': is_mutative_action_allowed, "documentation_override": "Execute AWS SNS Subscribe. Ensure that you set correct permission policies if required."},
-            'unsubscribe': {'validator': is_unsubscribe_allowed},
-            'confirm_subscription': {'validator': is_mutative_action_allowed},
-            'publish': {'validator': is_mutative_action_allowed},
-            'publish_batch': {'validator': is_mutative_action_allowed},
-        },
-            skip_param_documentation=True,
+        mcp=mcp,
+        tool_configuration=tool_configuration,
+        skip_param_documentation=True
     )
     sns_generator.generate()

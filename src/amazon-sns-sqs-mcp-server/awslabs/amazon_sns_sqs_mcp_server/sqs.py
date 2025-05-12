@@ -58,27 +58,46 @@ def is_mutative_action_allowed(
         return False, str(e)
 
 
-def register_sqs_tools(mcp: FastMCP):
+def register_sqs_tools(mcp: FastMCP, disallow_resource_creation: bool = False):
     """Register SQS tools with the MCP server."""
     # Generate SQS tools
+    
+    # List of operations to ignore
+    operations_to_ignore = [
+        # Common operations to ignore
+        'close',
+        'can_paginate',
+        'generate_presigned_url',
+        'untag_queue',
+        'tag_queue',
+        'get_waiter',
+        'get_paginator' # Currently not found in BOTO3
+    ]
+    
+    # Create the tool configuration dictionary
+    tool_configuration = {
+        'add_permission': {'name_override': 'add_sqs_permission'},
+        'remove_permission': {'name_override': 'remove_sqs_permission'},
+        'create_queue': {'func_override': create_queue_override},
+        'delete_queue': {'validator': is_mutative_action_allowed},
+        'set_queue_attributes': {'validator': is_mutative_action_allowed},
+        'send_message': {'validator': is_mutative_action_allowed},
+        'receive_message': {'validator': is_mutative_action_allowed},
+        'send_message_batch': {'validator': is_mutative_action_allowed},
+        'delete_message': {'validator': is_mutative_action_allowed},
+    }
+    
+    # Add all operations to ignore to the tool configuration
+    for operation in operations_to_ignore:
+        tool_configuration[operation] = {'ignore': True}
+    if disallow_resource_creation:
+        tool_configuration['create_queue'] = {'ignore': True}
+
     sqs_generator = AWSToolGenerator(
         service_name='sqs',
         service_display_name='Amazon SQS',
         mcp=mcp,
-        tool_configuration={
-            'close': {'ignore': True},
-            'can_paginate': {'ignore': True},
-            'generate_presigned_url': {'ignore': True},
-            'untag_queue': {'ignore': True},
-            'tag_queue': {'ignore': True},
-            'create_queue': {'func_override': create_queue_override},
-            'delete_queue': {'validator': is_mutative_action_allowed},
-            'set_queue_attributes': {'validator': is_mutative_action_allowed},
-            'send_message': {'validator': is_mutative_action_allowed},
-            'receive_message': {'validator': is_mutative_action_allowed},
-            'send_message_batch': {'validator': is_mutative_action_allowed},
-            'delete_message': {'validator': is_mutative_action_allowed},
-        },
+        tool_configuration=tool_configuration,
         skip_param_documentation=True
     )
     sqs_generator.generate()

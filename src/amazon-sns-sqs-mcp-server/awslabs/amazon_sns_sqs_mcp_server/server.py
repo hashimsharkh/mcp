@@ -14,9 +14,6 @@ mcp = FastMCP(
     version=MCP_SERVER_VERSION,
 )
 
-# Register SNS and SQS tools
-register_sns_tools(mcp)
-register_sqs_tools(mcp)
 
 def main():
     """Run the MCP server with CLI argument support."""
@@ -25,8 +22,19 @@ def main():
     )
     parser.add_argument('--sse', action='store_true', help='Use SSE transport')
     parser.add_argument('--port', type=int, default=8888, help='Port to run the server on')
+    
+    parser.add_argument(
+        '--disallow-resource-creation',
+        action='store_true',
+        help='Hide tools that create resources on user AWS account',
+    )
 
     args = parser.parse_args()
+
+    disallow_resource_creation = True if args.disallow_resource_creation else False
+
+    register_sns_tools(mcp, disallow_resource_creation)
+    register_sqs_tools(mcp, disallow_resource_creation)
 
     if args.sse:
         mcp.settings.port = args.port
