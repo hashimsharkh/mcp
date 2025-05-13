@@ -152,7 +152,7 @@ When using this MCP server, consider:
 - If you encounter permission errors, verify your IAM user has the correct policies attached
 - For connection issues, check network configurations and security groups
 - If resource modification fails with a tag validation error, it means the resource was not created by the MCP server
-- For general Amazon SNS / SQS issues, consult the [Amazon SNS documentation](https://docs.aws.amazon.com/sns/) , [Amazon SQS documentation](https://docs.aws.amazon.com/sqs/) 
+- For general Amazon SNS / SQS issues, consult the [Amazon SNS documentation](https://docs.aws.amazon.com/sns/) , [Amazon SQS documentation](https://docs.aws.amazon.com/sqs/)
 
 ## Version
 
