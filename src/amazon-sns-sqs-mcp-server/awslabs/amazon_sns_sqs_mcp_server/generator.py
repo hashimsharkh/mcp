@@ -28,27 +28,30 @@ class AWSToolGenerator:
         tool_configuration: Dict[str, Dict[str, Any]] | None = None,
         skip_param_documentation: bool = False,
     ):
-        """Initialize the AWS Service Tool
+        """Initialize the AWS Service Tool.
 
         Args:
             service_name: The AWS service name (e.g., 'sns', 'sqs')
             service_display_name: Display name for the service (defaults to uppercase of service_name)
+            mcp: The MCP server instance
+            tool_configuration: Configuration for each tool
             skip_param_documentation: If True, parameter documentation will be skipped
 
         """
         self.service_name = service_name
         self.service_display_name = service_display_name or service_name.upper()
         self.mcp = mcp
-        self.clients: Dict[str, Any] = dict()
-        self.tool_configuration = tool_configuration or dict()
+        self.clients: Dict[str, Any] = {}
+        self.tool_configuration = tool_configuration or {}
         self.skip_param_documentation = skip_param_documentation
         self.__validate_tool_configuration()
 
     def generate(self):
-        # Register all operations as tools
+        """Augment the MCP server with tools derived from the boto3 client and tool configurations."""
         self.__register_operations()
 
     def get_mcp(self):
+        """Return the MCP server instance."""
         return self.mcp
 
     def __register_operations(self):
@@ -77,7 +80,7 @@ class AWSToolGenerator:
                 continue
 
     def __get_client(self, region: str = 'us-east-1') -> Any:
-        """Get or create a service client for the specified region"""
+        """Get or create a service client for the specified region."""
         client_key = f'{self.service_name}_{region}'
         if client_key not in self.clients:
             aws_profile = os.environ.get('AWS_PROFILE', 'default')
@@ -87,7 +90,7 @@ class AWSToolGenerator:
         return self.clients[client_key]
 
     def __get_operations(self) -> List[str]:
-        """Get all available operations from boto3 for this service"""
+        """Get all available operations from boto3 for this service."""
         default_client = self.__get_client()
         operations = [
             op
@@ -115,7 +118,7 @@ class AWSToolGenerator:
         documentation_override: str | None = None,
         validator: VALIDATOR | None = None,
     ) -> Callable | None:
-        """Create a function for a specific service operation"""
+        """Create a function for a specific service operation."""
         # Get information about parameters and their types
         parameters = []
         type_conversion = {
@@ -211,7 +214,7 @@ class AWSToolGenerator:
     def __get_operation_input_parameters(
         self, operation_name: str
     ) -> List[tuple[str, str, bool, str]]:
-        """Returns a list of input parameter names for a given operation."""
+        """Return a list of input parameter names for a given operation."""
         session = botocore.session.get_session()
         service_model = session.get_service_model(self.service_name)
         op_model = service_model.operation_model(self.__snake_to_camel(operation_name))

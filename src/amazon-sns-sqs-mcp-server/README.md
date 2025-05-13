@@ -131,6 +131,7 @@ The MCP server implements a security mechanism that only allows modification of 
 1. Automatically tagging all created resources with a `mcp_server_version` tag
 2. Validating this tag before allowing any mutative actions (update, delete, reboot)
 3. Rejecting operations on resources that don't have the appropriate tag
+4. A2P Mutative Operations are not enabled
 
 ## Best Practices
 

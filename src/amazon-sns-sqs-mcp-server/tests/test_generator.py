@@ -6,17 +6,26 @@ from unittest.mock import MagicMock, patch
 
 # Create mock classes to avoid importing boto3 and botocore
 class MockClientError(Exception):
+    """Mock class for boto3's ClientError exception."""
+
     def __init__(self, error_response, operation_name):
+        """Initialize the mock ClientError.
+
+        Args:
+            error_response: The error response dictionary
+            operation_name: The name of the operation that failed
+
+        """
         self.response = error_response
         self.operation_name = operation_name
         super().__init__(f'{operation_name} failed: {error_response}')
 
 
 class TestAWSToolGenerator(unittest.TestCase):
-    """Test suite for AWSToolGenerator class"""
+    """Test suite for AWSToolGenerator class."""
 
     def setUp(self):
-        """Set up test fixtures"""
+        """Set up test fixtures."""
         self.mcp_mock = MagicMock()
         self.mcp_mock.tool = MagicMock(return_value=lambda x: x)  # Decorator mock
 
@@ -27,7 +36,7 @@ class TestAWSToolGenerator(unittest.TestCase):
 
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
     def test_initialization(self, mock_session):
-        """Test initialization of AWSToolGenerator"""
+        """Test initialization of AWSToolGenerator."""
         mock_session.return_value = self.boto3_session_mock
 
         # Test with minimal parameters
@@ -65,7 +74,7 @@ class TestAWSToolGenerator(unittest.TestCase):
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.botocore.session.get_session')
     def test_generate(self, mock_botocore_session, mock_boto3_session):
-        """Test generate method registers operations as tools"""
+        """Test generate method registers operations as tools."""
         mock_boto3_session.return_value = self.boto3_session_mock
 
         # Setup mock for botocore session
@@ -109,7 +118,7 @@ class TestAWSToolGenerator(unittest.TestCase):
 
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
     def test_get_client(self, mock_session):
-        """Test client creation and caching"""
+        """Test client creation and caching."""
         # Create different mock clients for different regions
         us_west_client = MagicMock(name='us_west_client')
         us_east_client = MagicMock(name='us_east_client')
@@ -149,7 +158,7 @@ class TestAWSToolGenerator(unittest.TestCase):
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.botocore.session.get_session')
     def test_create_operation_function(self, mock_botocore_session, mock_boto3_session):
-        """Test creation of operation functions"""
+        """Test creation of operation functions."""
         mock_boto3_session.return_value = self.boto3_session_mock
 
         # Setup mock for botocore session
@@ -190,7 +199,7 @@ class TestAWSToolGenerator(unittest.TestCase):
 
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
     def test_tool_configuration_validation(self, mock_session):
-        """Test validation of tool configuration"""
+        """Test validation of tool configuration."""
         mock_session.return_value = self.boto3_session_mock
 
         # Test invalid configuration: both ignore and func_override
@@ -244,7 +253,7 @@ class TestAWSToolGenerator(unittest.TestCase):
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.botocore.session.get_session')
     def test_function_override(self, mock_botocore_session, mock_boto3_session):
-        """Test function override in tool configuration"""
+        """Test function override in tool configuration."""
         mock_boto3_session.return_value = self.boto3_session_mock
 
         # Setup mock for botocore session
@@ -283,7 +292,7 @@ class TestAWSToolGenerator(unittest.TestCase):
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.botocore.session.get_session')
     def test_validator(self, mock_botocore_session, mock_boto3_session):
-        """Test validator in tool configuration"""
+        """Test validator in tool configuration."""
         mock_boto3_session.return_value = self.boto3_session_mock
 
         # Setup mock for botocore session
@@ -343,7 +352,7 @@ class TestAWSToolGenerator(unittest.TestCase):
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.botocore.session.get_session')
     def test_client_error_handling(self, mock_botocore_session, mock_boto3_session):
-        """Test handling of ClientError in operation functions"""
+        """Test handling of ClientError in operation functions."""
         mock_boto3_session.return_value = self.boto3_session_mock
 
         # Setup mock for botocore session
@@ -404,7 +413,7 @@ class TestAWSToolGenerator(unittest.TestCase):
 
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
     def test_get_mcp(self, mock_session):
-        """Test get_mcp method"""
+        """Test get_mcp method."""
         mock_session.return_value = self.boto3_session_mock
 
         generator = AWSToolGenerator(
@@ -416,7 +425,7 @@ class TestAWSToolGenerator(unittest.TestCase):
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.botocore.session.get_session')
     def test_skip_param_documentation(self, mock_botocore_session, mock_boto3_session):
-        """Test skip_param_documentation flag"""
+        """Test skip_param_documentation flag."""
         mock_boto3_session.return_value = self.boto3_session_mock
 
         # Setup mock for botocore session
@@ -474,8 +483,47 @@ class TestAWSToolGenerator(unittest.TestCase):
 
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.botocore.session.get_session')
+    def test_name_override(self, mock_botocore_session, mock_boto3_session):
+        """Test name_override functionality."""
+        mock_boto3_session.return_value = self.boto3_session_mock
+
+        # Setup mock for botocore session
+        botocore_session_mock = MagicMock()
+        mock_botocore_session.return_value = botocore_session_mock
+
+        # Setup service model mock
+        service_model_mock = MagicMock()
+        botocore_session_mock.get_service_model.return_value = service_model_mock
+
+        # Setup operation model mock
+        operation_model_mock = MagicMock()
+        service_model_mock.operation_model.return_value = operation_model_mock
+
+        # Setup input shape mock with no members
+        input_shape_mock = MagicMock()
+        input_shape_mock.members = {}
+        input_shape_mock.required_members = []
+        operation_model_mock.input_shape = input_shape_mock
+
+        generator = AWSToolGenerator(
+            service_name='sqs', service_display_name='SQS', mcp=self.mcp_mock
+        )
+
+        # Create operation function with default name
+        default_func = generator._AWSToolGenerator__create_operation_function('get_queue_url')
+        self.assertEqual(default_func.__name__, 'get_queue_url')
+
+        # Create operation function with name override
+        custom_name = 'custom_queue_url_getter'
+        override_func = generator._AWSToolGenerator__create_operation_function(
+            'get_queue_url', name_override=custom_name
+        )
+        self.assertEqual(override_func.__name__, custom_name)
+
+    @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
+    @patch('awslabs.amazon_sns_sqs_mcp_server.generator.botocore.session.get_session')
     def test_annotated_field_for_optional_params(self, mock_botocore_session, mock_boto3_session):
-        """Test that optional parameters use Annotated with Field for documentation and have None as default"""
+        """Test that optional parameters use Annotated with Field for documentation and have None as default."""
         from typing import Annotated, get_args, get_origin
 
         mock_boto3_session.return_value = self.boto3_session_mock
@@ -550,7 +598,7 @@ class TestAWSToolGenerator(unittest.TestCase):
 
 
 def test_hello_world():
-    """Basic test to verify test setup is working"""
+    """Basic test to verify test setup is working."""
     assert True, 'Hello world test passes'
 
 
