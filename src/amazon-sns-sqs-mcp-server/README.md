@@ -111,9 +111,9 @@ Example:
 uv run awslabs.amazon-sns-sqs-mcp-server --port 9000
 ```
 
-### `--disallow-resource-creation`
+### `--allow-resource-creation`
 
-Disables tools that create resources in the user's AWS account. When this flag is enabled, the create new resources tools will be hidden from the MCP client, preventing the creation of new Amazon SNS / SQS resources. Default is False.
+Enables tools that create resources in the user's AWS account. When this flag is not enabled, the create new resources tools will be hidden from the MCP client, preventing the creation of new Amazon SNS / SQS resources. Default is False.
 
 This flag is particularly useful for:
 - Testing environments where resource creation should be restricted

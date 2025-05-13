@@ -127,6 +127,60 @@ class TestServerModule:
         assert mock_mcp.settings.port == 9999
         mock_mcp.run.assert_called_once_with(transport='sse')
 
+    @patch('boto3.Session')
+    @patch('awslabs.amazon_sns_sqs_mcp_server.server.mcp')
+    @patch('awslabs.amazon_sns_sqs_mcp_server.server.register_sns_tools')
+    @patch('awslabs.amazon_sns_sqs_mcp_server.server.register_sqs_tools')
+    @patch('argparse.ArgumentParser.parse_args')
+    def test_main_with_allow_resource_creation(
+        self, mock_parse_args, mock_register_sqs, mock_register_sns, mock_mcp, mock_session
+    ):
+        """Test main function with --allow-resource-creation flag."""
+        # Setup mock with allow_resource_creation=True
+        mock_args = MagicMock()
+        mock_args.sse = False
+        mock_args.allow_resource_creation = True
+        mock_args.port = 8888
+        mock_parse_args.return_value = mock_args
+
+        # Mock boto3 session to prevent credential lookup
+        mock_session_instance = MagicMock()
+        mock_session.return_value = mock_session_instance
+
+        # Call main
+        main()
+
+        # Assert register_sns_tools and register_sqs_tools were called with disallow_resource_creation=False
+        mock_register_sns.assert_called_once_with(mock_mcp, False)
+        mock_register_sqs.assert_called_once_with(mock_mcp, False)
+
+    @patch('boto3.Session')
+    @patch('awslabs.amazon_sns_sqs_mcp_server.server.mcp')
+    @patch('awslabs.amazon_sns_sqs_mcp_server.server.register_sns_tools')
+    @patch('awslabs.amazon_sns_sqs_mcp_server.server.register_sqs_tools')
+    @patch('argparse.ArgumentParser.parse_args')
+    def test_main_without_allow_resource_creation(
+        self, mock_parse_args, mock_register_sqs, mock_register_sns, mock_mcp, mock_session
+    ):
+        """Test main function without --allow-resource-creation flag."""
+        # Setup mock with allow_resource_creation=False
+        mock_args = MagicMock()
+        mock_args.sse = False
+        mock_args.allow_resource_creation = False
+        mock_args.port = 8888
+        mock_parse_args.return_value = mock_args
+
+        # Mock boto3 session to prevent credential lookup
+        mock_session_instance = MagicMock()
+        mock_session.return_value = mock_session_instance
+
+        # Call main
+        main()
+
+        # Assert register_sns_tools and register_sqs_tools were called with disallow_resource_creation=True
+        mock_register_sns.assert_called_once_with(mock_mcp, True)
+        mock_register_sqs.assert_called_once_with(mock_mcp, True)
+
 
 class TestSQSTools:
     """Test SQS tools."""
