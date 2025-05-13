@@ -3,6 +3,8 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from aws_service_mcp_generator.generator import AWSToolGenerator
+
+
 # Create mock classes to avoid importing boto3 and botocore
 class MockClientError(Exception):
     def __init__(self, error_response, operation_name):
@@ -394,6 +396,7 @@ class TestAWSToolGenerator(unittest.TestCase):
             error_response = {
                 "Error": {
                     "Code": "QueueDoesNotExist",
+                    "Message": "The specified queue does not exist"
                 }
             }
             self.boto3_client_mock.get_queue_url = MagicMock(
