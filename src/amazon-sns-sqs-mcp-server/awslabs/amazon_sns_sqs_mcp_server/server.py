@@ -1,4 +1,5 @@
 """Main server module for Amazon SNS and SQS MCP server."""
+
 import argparse
 from awslabs.amazon_sns_sqs_mcp_server.consts import MCP_SERVER_VERSION
 from awslabs.amazon_sns_sqs_mcp_server.sns import register_sns_tools
@@ -22,7 +23,7 @@ def main():
     )
     parser.add_argument('--sse', action='store_true', help='Use SSE transport')
     parser.add_argument('--port', type=int, default=8888, help='Port to run the server on')
-    
+
     parser.add_argument(
         '--disallow-resource-creation',
         action='store_true',

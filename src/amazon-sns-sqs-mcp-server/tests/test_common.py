@@ -1,4 +1,5 @@
 """Tests for the common module of amazon-sns-sqs-mcp-server."""
+
 from awslabs.amazon_sns_sqs_mcp_server.common import (
     MCP_SERVER_VERSION_TAG,
     validate_mcp_server_version_tag,

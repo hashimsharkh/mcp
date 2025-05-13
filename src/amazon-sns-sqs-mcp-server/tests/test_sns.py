@@ -1,4 +1,5 @@
 """Tests for the SNS module of amazon-sns-sqs-mcp-server."""
+
 from awslabs.amazon_sns_sqs_mcp_server.common import MCP_SERVER_VERSION_TAG
 from awslabs.amazon_sns_sqs_mcp_server.consts import MCP_SERVER_VERSION
 from awslabs.amazon_sns_sqs_mcp_server.sns import (
@@ -24,7 +25,7 @@ class TestSNSTools:
         mock_sns_client_getter = MagicMock(return_value=mock_sns_client)
 
         # Call the function
-        create_topic_override(mock_mcp, mock_sns_client_getter, "")
+        create_topic_override(mock_mcp, mock_sns_client_getter, '')
 
         # Assert tool was registered
         assert mock_mcp.tool.called
@@ -42,21 +43,23 @@ class TestSNSTools:
 
         # Test with valid TopicArn
         result, _ = is_mutative_action_allowed(
-            mock_mcp, mock_sns_client, {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'}
+            mock_mcp,
+            mock_sns_client,
+            {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'},
         )
         assert result is True
 
         # Test with missing TopicArn
-        result, message = is_mutative_action_allowed(
-            mock_mcp, mock_sns_client, {}
-        )
+        result, message = is_mutative_action_allowed(mock_mcp, mock_sns_client, {})
         assert result is False
         assert message == 'TopicArn is not passed to the tool'
 
         # Test with untagged resource
         mock_sns_client.list_tags_for_resource.return_value = {'Tags': []}
         result, message = is_mutative_action_allowed(
-            mock_mcp, mock_sns_client, {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'}
+            mock_mcp,
+            mock_sns_client,
+            {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'},
         )
         assert result is False
         assert message == 'mutating a resource without the mcp_server_version tag is not allowed'
@@ -68,6 +71,7 @@ class TestSNSTools:
 
         # Capture the decorated function
         decorated_func = None
+
         def capture_func(func):
             nonlocal decorated_func
             decorated_func = func
@@ -77,58 +81,48 @@ class TestSNSTools:
 
         # Mock SNS client
         mock_sns_client = MagicMock()
-        mock_sns_client.create_topic.return_value = {"TopicArn": "test-topic-arn"}
+        mock_sns_client.create_topic.return_value = {'TopicArn': 'test-topic-arn'}
         mock_sns_client_getter = MagicMock(return_value=mock_sns_client)
 
         # Call the function
-        create_topic_override(mock_mcp, mock_sns_client_getter, "")
+        create_topic_override(mock_mcp, mock_sns_client_getter, '')
 
         # Verify the decorated function was captured
         assert decorated_func is not None
 
         # Test with standard topic
         result = decorated_func(
-            name="test-topic",
-            attributes={"DisplayName": "Test Topic"},
-            tags=[{"Key": "Environment", "Value": "Test"}],
-            region="us-west-2"
+            name='test-topic',
+            attributes={'DisplayName': 'Test Topic'},
+            tags=[{'Key': 'Environment', 'Value': 'Test'}],
+            region='us-west-2',
         )
 
         # Verify client was created with correct region
-        mock_sns_client_getter.assert_called_with("us-west-2")
+        mock_sns_client_getter.assert_called_with('us-west-2')
 
         # Verify create_topic was called with correct parameters
         mock_sns_client.create_topic.assert_called_with(
-            Name="test-topic",
-            Attributes={"DisplayName": "Test Topic"},
+            Name='test-topic',
+            Attributes={'DisplayName': 'Test Topic'},
             Tags=[
-                {"Key": "Environment", "Value": "Test"},
-                {"Key": MCP_SERVER_VERSION_TAG, "Value": MCP_SERVER_VERSION}
-            ]
+                {'Key': 'Environment', 'Value': 'Test'},
+                {'Key': MCP_SERVER_VERSION_TAG, 'Value': MCP_SERVER_VERSION},
+            ],
         )
 
         # Verify result
-        assert result == {"TopicArn": "test-topic-arn"}
+        assert result == {'TopicArn': 'test-topic-arn'}
 
         # Test with FIFO topic
         mock_sns_client.create_topic.reset_mock()
-        result = decorated_func(
-            name="test-topic.fifo",
-            attributes={},
-            tags=[],
-            region="us-east-1"
-        )
+        result = decorated_func(name='test-topic.fifo', attributes={}, tags=[], region='us-east-1')
 
         # Verify FIFO attributes were added
         mock_sns_client.create_topic.assert_called_with(
-            Name="test-topic.fifo",
-            Attributes={
-                "FifoTopic": "true",
-                "FifoThroughputScope": "MessageGroup"
-            },
-            Tags=[
-                {"Key": MCP_SERVER_VERSION_TAG, "Value": MCP_SERVER_VERSION}
-            ]
+            Name='test-topic.fifo',
+            Attributes={'FifoTopic': 'true', 'FifoThroughputScope': 'MessageGroup'},
+            Tags=[{'Key': MCP_SERVER_VERSION_TAG, 'Value': MCP_SERVER_VERSION}],
         )
 
     def test_is_mutative_action_allowed_exception(self):
@@ -138,14 +132,16 @@ class TestSNSTools:
 
         # Mock SNS client that raises exception
         mock_sns_client = MagicMock()
-        mock_sns_client.list_tags_for_resource.side_effect = Exception("Test exception")
+        mock_sns_client.list_tags_for_resource.side_effect = Exception('Test exception')
 
         # Test with exception
         result, message = is_mutative_action_allowed(
-            mock_mcp, mock_sns_client, {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'}
+            mock_mcp,
+            mock_sns_client,
+            {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'},
         )
         assert result is False
-        assert message == "Test exception"
+        assert message == 'Test exception'
 
     def test_is_unsubscribe_allowed_exception(self):
         """Test is_unsubscribe_allowed function with exception."""
@@ -154,16 +150,16 @@ class TestSNSTools:
 
         # Mock SNS client that raises exception
         mock_sns_client = MagicMock()
-        mock_sns_client.get_subscription_attributes.side_effect = Exception("Test exception")
+        mock_sns_client.get_subscription_attributes.side_effect = Exception('Test exception')
 
         # Test with exception
         result, message = is_unsubscribe_allowed(
-            mock_mcp, mock_sns_client, {'SubscriptionArn': 'arn:aws:sns:us-east-1:123456789012:test-topic:subscription-id'}
+            mock_mcp,
+            mock_sns_client,
+            {'SubscriptionArn': 'arn:aws:sns:us-east-1:123456789012:test-topic:subscription-id'},
         )
         assert result is False
-        assert message == "Test exception"
-
-
+        assert message == 'Test exception'
 
     def test_register_sns_tools(self):
         """Test register_sns_tools function."""
@@ -174,7 +170,7 @@ class TestSNSTools:
         register_sns_tools(mock_mcp)
 
         # Assert AWSToolGenerator was used (indirectly through the mock)
-        assert mock_mcp.mock_calls, "No calls were made to the mcp object"
+        assert mock_mcp.mock_calls, 'No calls were made to the mcp object'
 
     def test_validator_with_different_operations(self):
         """Test validator with different SNS operations."""
@@ -189,19 +185,31 @@ class TestSNSTools:
 
         # Test with confirm_subscription (uses TopicArn)
         result, _ = is_mutative_action_allowed(
-            mock_mcp, mock_sns_client, {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic', 'Token': 'abc123'}
+            mock_mcp,
+            mock_sns_client,
+            {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic', 'Token': 'abc123'},
         )
         assert result is True
 
         # Test with publish (uses TopicArn)
         result, _ = is_mutative_action_allowed(
-            mock_mcp, mock_sns_client, {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic', 'Message': 'Hello world'}
+            mock_mcp,
+            mock_sns_client,
+            {
+                'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic',
+                'Message': 'Hello world',
+            },
         )
         assert result is True
 
         # Test with publish_batch (uses TopicArn)
         result, _ = is_mutative_action_allowed(
-            mock_mcp, mock_sns_client, {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic', 'PublishBatchRequestEntries': []}
+            mock_mcp,
+            mock_sns_client,
+            {
+                'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic',
+                'PublishBatchRequestEntries': [],
+            },
         )
         assert result is True
 
@@ -215,9 +223,7 @@ class TestSNSTools:
 
         # Mock get_subscription_attributes response
         mock_sns_client.get_subscription_attributes.return_value = {
-            'Attributes': {
-                'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'
-            }
+            'Attributes': {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'}
         }
 
         # Mock list_tags_for_resource response for a tagged topic
@@ -227,34 +233,36 @@ class TestSNSTools:
 
         # Test with valid SubscriptionArn
         result, _ = is_unsubscribe_allowed(
-            mock_mcp, mock_sns_client, {'SubscriptionArn': 'arn:aws:sns:us-east-1:123456789012:test-topic:subscription-id'}
+            mock_mcp,
+            mock_sns_client,
+            {'SubscriptionArn': 'arn:aws:sns:us-east-1:123456789012:test-topic:subscription-id'},
         )
         assert result is True
 
         # Test with missing SubscriptionArn
-        result, message = is_unsubscribe_allowed(
-            mock_mcp, mock_sns_client, {}
-        )
+        result, message = is_unsubscribe_allowed(mock_mcp, mock_sns_client, {})
         assert result is False
         assert message == 'SubscriptionArn is not passed to the tool'
 
         # Test with missing TopicArn in subscription attributes
         mock_sns_client.get_subscription_attributes.return_value = {'Attributes': {}}
         result, message = is_unsubscribe_allowed(
-            mock_mcp, mock_sns_client, {'SubscriptionArn': 'arn:aws:sns:us-east-1:123456789012:test-topic:subscription-id'}
+            mock_mcp,
+            mock_sns_client,
+            {'SubscriptionArn': 'arn:aws:sns:us-east-1:123456789012:test-topic:subscription-id'},
         )
         assert result is False
         assert message == 'TopicArn is not passed to the tool'
 
         # Test with untagged topic
         mock_sns_client.get_subscription_attributes.return_value = {
-            'Attributes': {
-                'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'
-            }
+            'Attributes': {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'}
         }
         mock_sns_client.list_tags_for_resource.return_value = {'Tags': []}
         result, message = is_unsubscribe_allowed(
-            mock_mcp, mock_sns_client, {'SubscriptionArn': 'arn:aws:sns:us-east-1:123456789012:test-topic:subscription-id'}
+            mock_mcp,
+            mock_sns_client,
+            {'SubscriptionArn': 'arn:aws:sns:us-east-1:123456789012:test-topic:subscription-id'},
         )
         assert result is False
         assert message == 'mutating a resource without the mcp_server_version tag is not allowed'

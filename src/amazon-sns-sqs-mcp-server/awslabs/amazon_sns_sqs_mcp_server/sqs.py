@@ -1,4 +1,5 @@
 """Amazon SQS tools for the MCP server."""
+
 from aws_service_mcp_generator.generator import BOTO3_CLIENT_GETTER, AWSToolGenerator
 from awslabs.amazon_sns_sqs_mcp_server.common import (
     MCP_SERVER_VERSION_TAG,
@@ -26,10 +27,10 @@ def create_queue_override(mcp: FastMCP, sqs_client_getter: BOTO3_CLIENT_GETTER, 
         }
 
         # Set FIFO queue attributes if name ends with .fifo
-        if queue_name.endswith(".fifo"):
-            create_params['Attributes']["FifoQueue"] = "true"
-            create_params["Attributes"]["DeduplicationScope"] = "messageGroup"
-            create_params["Attributes"]["FifoThroughputLimit"] = "perMessageGroupId"
+        if queue_name.endswith('.fifo'):
+            create_params['Attributes']['FifoQueue'] = 'true'
+            create_params['Attributes']['DeduplicationScope'] = 'messageGroup'
+            create_params['Attributes']['FifoThroughputLimit'] = 'perMessageGroupId'
 
         # Add MCP server version tag
         tags_copy = tags.copy()
@@ -61,7 +62,7 @@ def is_mutative_action_allowed(
 def register_sqs_tools(mcp: FastMCP, disallow_resource_creation: bool = False):
     """Register SQS tools with the MCP server."""
     # Generate SQS tools
-    
+
     # List of operations to ignore
     operations_to_ignore = [
         # Common operations to ignore
@@ -71,9 +72,9 @@ def register_sqs_tools(mcp: FastMCP, disallow_resource_creation: bool = False):
         'untag_queue',
         'tag_queue',
         'get_waiter',
-        'get_paginator' # Currently not found in BOTO3
+        'get_paginator',  # Currently not found in BOTO3
     ]
-    
+
     # Create the tool configuration dictionary
     tool_configuration = {
         'add_permission': {'name_override': 'add_sqs_permission'},
@@ -86,7 +87,7 @@ def register_sqs_tools(mcp: FastMCP, disallow_resource_creation: bool = False):
         'send_message_batch': {'validator': is_mutative_action_allowed},
         'delete_message': {'validator': is_mutative_action_allowed},
     }
-    
+
     # Add all operations to ignore to the tool configuration
     for operation in operations_to_ignore:
         tool_configuration[operation] = {'ignore': True}
@@ -98,6 +99,6 @@ def register_sqs_tools(mcp: FastMCP, disallow_resource_creation: bool = False):
         service_display_name='Amazon SQS',
         mcp=mcp,
         tool_configuration=tool_configuration,
-        skip_param_documentation=True
+        skip_param_documentation=True,
     )
     sqs_generator.generate()

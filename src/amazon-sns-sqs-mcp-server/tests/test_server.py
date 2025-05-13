@@ -1,4 +1,5 @@
 """Tests for the amazon-sns-sqs-mcp-server."""
+
 from awslabs.amazon_sns_sqs_mcp_server.server import main, mcp
 from awslabs.amazon_sns_sqs_mcp_server.sns import (
     create_topic_override,
@@ -29,7 +30,7 @@ class TestSNSTools:
         mock_sns_client_getter = MagicMock(return_value=mock_sns_client)
 
         # Call the function
-        create_topic_override(mock_mcp, mock_sns_client_getter, "")
+        create_topic_override(mock_mcp, mock_sns_client_getter, '')
 
         # Assert tool was registered
         assert mock_mcp.tool.called
@@ -47,21 +48,23 @@ class TestSNSTools:
 
         # Test with valid TopicArn
         result, _ = sns_is_mutative_action_allowed(
-            mock_mcp, mock_sns_client, {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'}
+            mock_mcp,
+            mock_sns_client,
+            {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'},
         )
         assert result is True
 
         # Test with missing TopicArn
-        result, message = sns_is_mutative_action_allowed(
-            mock_mcp, mock_sns_client, {}
-        )
+        result, message = sns_is_mutative_action_allowed(mock_mcp, mock_sns_client, {})
         assert result is False
         assert message == 'TopicArn is not passed to the tool'
 
         # Test with untagged resource
         mock_sns_client.list_tags_for_resource.return_value = {'Tags': []}
         result, message = sns_is_mutative_action_allowed(
-            mock_mcp, mock_sns_client, {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'}
+            mock_mcp,
+            mock_sns_client,
+            {'TopicArn': 'arn:aws:sns:us-east-1:123456789012:test-topic'},
         )
         assert result is False
         assert message == 'mutating a resource without the mcp_server_version tag is not allowed'
@@ -75,9 +78,9 @@ class TestServerModule:
         assert mcp.name == 'awslabs.amazon-sns-sqs-mcp-server'
 
         # Check if instructions contains the expected strings
-        instructions = mcp.instructions if mcp.instructions else ""
-        assert "Manage Amazon SNS topics" in instructions
-        assert "Amazon SQS queues" in instructions
+        instructions = mcp.instructions if mcp.instructions else ''
+        assert 'Manage Amazon SNS topics' in instructions
+        assert 'Amazon SQS queues' in instructions
 
         assert 'pydantic' in mcp.dependencies
         assert 'boto3' in mcp.dependencies
@@ -129,7 +132,7 @@ class TestSQSTools:
         mock_sqs_client_getter = MagicMock(return_value=mock_sqs_client)
 
         # Call the function
-        create_queue_override(mock_mcp, mock_sqs_client_getter, "")
+        create_queue_override(mock_mcp, mock_sqs_client_getter, '')
 
         # Assert tool was registered
         assert mock_mcp.tool.called
@@ -141,27 +144,27 @@ class TestSQSTools:
 
         # Mock SQS client with tagged resource
         mock_sqs_client = MagicMock()
-        mock_sqs_client.list_queue_tags.return_value = {
-            'Tags': {'mcp_server_version': '1.0.0'}
-        }
+        mock_sqs_client.list_queue_tags.return_value = {'Tags': {'mcp_server_version': '1.0.0'}}
 
         # Test with valid QueueUrl
         result, _ = sqs_is_mutative_action_allowed(
-            mock_mcp, mock_sqs_client, {'QueueUrl': 'https://sqs.us-east-1.amazonaws.com/123456789012/test-queue'}
+            mock_mcp,
+            mock_sqs_client,
+            {'QueueUrl': 'https://sqs.us-east-1.amazonaws.com/123456789012/test-queue'},
         )
         assert result is True
 
         # Test with missing QueueUrl
-        result, message = sqs_is_mutative_action_allowed(
-            mock_mcp, mock_sqs_client, {}
-        )
+        result, message = sqs_is_mutative_action_allowed(mock_mcp, mock_sqs_client, {})
         assert result is False
         assert message == 'QueueUrl is not passed to the tool'
 
         # Test with untagged resource
         mock_sqs_client.list_queue_tags.return_value = {'Tags': {}}
         result, message = sqs_is_mutative_action_allowed(
-            mock_mcp, mock_sqs_client, {'QueueUrl': 'https://sqs.us-east-1.amazonaws.com/123456789012/test-queue'}
+            mock_mcp,
+            mock_sqs_client,
+            {'QueueUrl': 'https://sqs.us-east-1.amazonaws.com/123456789012/test-queue'},
         )
         assert result is False
         assert message == 'mutating a resource without the mcp_server_version tag is not allowed'
