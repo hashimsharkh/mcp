@@ -1,6 +1,6 @@
 """Amazon SQS tools for the MCP server."""
 
-from aws_service_mcp_generator.generator import BOTO3_CLIENT_GETTER, AWSToolGenerator
+from awslabs.amazon_sns_sqs_mcp_server.generator import BOTO3_CLIENT_GETTER, AWSToolGenerator
 from awslabs.amazon_sns_sqs_mcp_server.common import (
     MCP_SERVER_VERSION_TAG,
     validate_mcp_server_version_tag,

@@ -161,7 +161,7 @@ class TestSQSTools:
         mock_mcp = MagicMock()
 
         # Capture the decorated function
-        decorated_func = None  # type: Callable | None
+        decorated_func = None  
 
         def capture_func(func):
             nonlocal decorated_func
@@ -229,7 +229,7 @@ class TestSQSTools:
         mock_mcp = MagicMock()
 
         # Capture the decorated function
-        decorated_func = None  # type: Callable | None
+        decorated_func = None 
 
         def capture_func(func):
             nonlocal decorated_func
