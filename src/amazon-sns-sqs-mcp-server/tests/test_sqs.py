@@ -1,6 +1,7 @@
 """Tests for the SQS module of amazon-sns-sqs-mcp-server."""
 
 import pytest
+import boto3
 from awslabs.amazon_sns_sqs_mcp_server.common import MCP_SERVER_VERSION_TAG
 from awslabs.amazon_sns_sqs_mcp_server.consts import MCP_SERVER_VERSION
 from awslabs.amazon_sns_sqs_mcp_server.sqs import (
@@ -8,7 +9,7 @@ from awslabs.amazon_sns_sqs_mcp_server.sqs import (
     is_mutative_action_allowed,
     register_sqs_tools,
 )
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 
 class TestSQSTools:
@@ -62,45 +63,55 @@ class TestSQSTools:
         assert result is False
         assert message == 'mutating a resource without the mcp_server_version tag is not allowed'
 
-    def test_register_sqs_tools(self):
+    @patch('boto3.client')
+    @patch('awslabs.amazon_sns_sqs_mcp_server.sqs.AWSToolGenerator')
+    def test_register_sqs_tools(self, mock_aws_tool_generator, mock_boto3_client):
         """Test register_sqs_tools function."""
+        # Create a mock tool generator instance
+        mock_generator_instance = MagicMock()
+        mock_aws_tool_generator.return_value = mock_generator_instance
+        
         # Mock FastMCP
         mock_mcp = MagicMock()
-
+        
         # Call the function
         register_sqs_tools(mock_mcp)
+        
+        # Verify AWSToolGenerator was instantiated
+        mock_aws_tool_generator.assert_called_once()
+        
+        # Verify that generate() was called on the instance
+        mock_generator_instance.generate.assert_called_once()
 
-        # Assert AWSToolGenerator was used (indirectly through the mock)
-        assert mock_mcp.mock_calls, 'No calls were made to the mcp object'
-
-    def test_register_sqs_tools_with_disallow_resource_creation(self):
+    @patch('boto3.client')
+    @patch('awslabs.amazon_sns_sqs_mcp_server.sqs.AWSToolGenerator')
+    def test_register_sqs_tools_with_disallow_resource_creation(
+        self, mock_aws_tool_generator, mock_boto3_client
+    ):
         """Test register_sqs_tools function with disallow_resource_creation=True."""
         # Mock FastMCP
         mock_mcp = MagicMock()
-
-        # Create a spy for AWSToolGenerator to capture the tool_configuration
+        
+        # Create a spy that captures the tool_configuration
         tool_config_capture = {}
-
+        
         # Define a mock AWSToolGenerator that captures the tool_configuration
-        def mock_aws_tool_generator(
+        def mock_generator(
             service_name, service_display_name, mcp, tool_configuration, skip_param_documentation
-        ) -> MagicMock:
+        ):
             nonlocal tool_config_capture
             tool_config_capture = tool_configuration
             return MagicMock()
-
-        # Patch AWSToolGenerator with our mock
-        with pytest.MonkeyPatch.context() as mp:
-            mp.setattr(
-                'awslabs.amazon_sns_sqs_mcp_server.sqs.AWSToolGenerator', mock_aws_tool_generator
-            )
-
-            # Call the function with disallow_resource_creation=True
-            register_sqs_tools(mock_mcp, disallow_resource_creation=True)
-
-            # Verify that create_queue is set to be ignored in the tool_configuration
-            assert 'create_queue' in tool_config_capture
-            assert tool_config_capture['create_queue'] == {'ignore': True}
+        
+        # Set our mock function as the side effect
+        mock_aws_tool_generator.side_effect = mock_generator
+        
+        # Call the function with disallow_resource_creation=True
+        register_sqs_tools(mock_mcp, disallow_resource_creation=True)
+        
+        # Verify that create_queue is set to be ignored in the tool_configuration
+        assert 'create_queue' in tool_config_capture
+        assert tool_config_capture['create_queue'] == {'ignore': True}
 
     def test_validator_with_different_operations(self):
         """Test validator with different SQS operations."""

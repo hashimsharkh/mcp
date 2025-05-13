@@ -1,5 +1,6 @@
 """Tests for the SNS module of amazon-sns-sqs-mcp-server."""
 
+import boto3
 from awslabs.amazon_sns_sqs_mcp_server.common import MCP_SERVER_VERSION_TAG
 from awslabs.amazon_sns_sqs_mcp_server.consts import MCP_SERVER_VERSION
 from awslabs.amazon_sns_sqs_mcp_server.sns import (
@@ -8,7 +9,7 @@ from awslabs.amazon_sns_sqs_mcp_server.sns import (
     is_unsubscribe_allowed,
     register_sns_tools,
 )
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 
 class TestSNSTools:
@@ -161,16 +162,59 @@ class TestSNSTools:
         assert result is False
         assert message == 'Test exception'
 
-    def test_register_sns_tools(self):
+    @patch('boto3.client')
+    @patch('awslabs.amazon_sns_sqs_mcp_server.sns.AWSToolGenerator')
+    def test_register_sns_tools(self, mock_aws_tool_generator, mock_boto3_client):
         """Test register_sns_tools function."""
         # Mock FastMCP
         mock_mcp = MagicMock()
-
+        
+        # Create a mock tool generator instance
+        mock_generator_instance = MagicMock()
+        mock_aws_tool_generator.return_value = mock_generator_instance
+        
         # Call the function
         register_sns_tools(mock_mcp)
-
-        # Assert AWSToolGenerator was used (indirectly through the mock)
-        assert mock_mcp.mock_calls, 'No calls were made to the mcp object'
+        
+        # Verify AWSToolGenerator was instantiated
+        mock_aws_tool_generator.assert_called_once()
+        
+        # Verify parameters safely without assuming position
+        args, kwargs = mock_aws_tool_generator.call_args
+        assert 'mcp' in kwargs or len(args) >= 3, "MCP not passed to AWSToolGenerator"
+        
+        # Verify that generate() was called on the instance
+        mock_generator_instance.generate.assert_called_once()
+    
+    @patch('boto3.client')
+    @patch('awslabs.amazon_sns_sqs_mcp_server.sns.AWSToolGenerator')
+    def test_register_sns_tools_with_disallow_resource_creation(
+        self, mock_aws_tool_generator, mock_boto3_client
+    ):
+        """Test register_sns_tools function with disallow_resource_creation=True."""
+        # Mock FastMCP
+        mock_mcp = MagicMock()
+        
+        # Create a spy that captures the tool_configuration
+        tool_config_capture = {}
+        
+        # Define a mock AWSToolGenerator that captures the tool_configuration
+        def mock_generator(
+            service_name, service_display_name, mcp, tool_configuration, skip_param_documentation
+        ):
+            nonlocal tool_config_capture
+            tool_config_capture = tool_configuration
+            return MagicMock()
+        
+        # Set our mock function as the side effect
+        mock_aws_tool_generator.side_effect = mock_generator
+        
+        # Call the function with disallow_resource_creation=True
+        register_sns_tools(mock_mcp, disallow_resource_creation=True)
+        
+        # Verify that create_topic is set to be ignored in the tool_configuration
+        assert 'create_topic' in tool_config_capture
+        assert tool_config_capture['create_topic'] == {'ignore': True}
 
     def test_validator_with_different_operations(self):
         """Test validator with different SNS operations."""
