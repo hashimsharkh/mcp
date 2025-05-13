@@ -1,3 +1,4 @@
+# pyright: reportAttributeAccessIssue=false, reportFunctionMemberAccess=false, reportGeneralTypeIssues=false
 import inspect
 import os
 import sys
