@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from aws_service_mcp_generator.generator import AWSToolGenerator
+from awslabs.aws_service_mcp_generator.generator import AWSToolGenerator
 
 
 # Create mock classes to avoid importing boto3 and botocore
@@ -25,7 +25,7 @@ class TestAWSToolGenerator(unittest.TestCase):
         self.boto3_session_mock = MagicMock()
         self.boto3_session_mock.client.return_value = self.boto3_client_mock
 
-    @patch("aws_service_mcp_generator.generator.boto3.Session")
+    @patch("awslabs.aws_service_mcp_generator.generator.boto3.Session")
     def test_initialization(self, mock_session):
         """Test initialization of AWSToolGenerator"""
         mock_session.return_value = self.boto3_session_mock
@@ -64,8 +64,8 @@ class TestAWSToolGenerator(unittest.TestCase):
         
         self.assertEqual(generator.skip_param_documentation, True)
 
-    @patch("aws_service_mcp_generator.generator.boto3.Session")
-    @patch("aws_service_mcp_generator.generator.botocore.session.get_session")
+    @patch("awslabs.aws_service_mcp_generator.generator.boto3.Session")
+    @patch("awslabs.aws_service_mcp_generator.generator.botocore.session.get_session")
     def test_generate(self, mock_botocore_session, mock_boto3_session):
         """Test generate method registers operations as tools"""
         mock_boto3_session.return_value = self.boto3_session_mock
@@ -111,7 +111,7 @@ class TestAWSToolGenerator(unittest.TestCase):
         # Verify tool was registered
         self.mcp_mock.tool.assert_called()
 
-    @patch("aws_service_mcp_generator.generator.boto3.Session")
+    @patch("awslabs.aws_service_mcp_generator.generator.boto3.Session")
     def test_get_client(self, mock_session):
         """Test client creation and caching"""
         # Create different mock clients for different regions
@@ -152,8 +152,8 @@ class TestAWSToolGenerator(unittest.TestCase):
         mock_session.assert_any_call(profile_name="default", region_name="us-west-2")
         mock_session.assert_any_call(profile_name="default", region_name="us-east-1")
 
-    @patch("aws_service_mcp_generator.generator.boto3.Session")
-    @patch("aws_service_mcp_generator.generator.botocore.session.get_session")
+    @patch("awslabs.aws_service_mcp_generator.generator.boto3.Session")
+    @patch("awslabs.aws_service_mcp_generator.generator.botocore.session.get_session")
     def test_create_operation_function(self, mock_botocore_session, mock_boto3_session):
         """Test creation of operation functions"""
         mock_boto3_session.return_value = self.boto3_session_mock
@@ -196,7 +196,7 @@ class TestAWSToolGenerator(unittest.TestCase):
         self.assertTrue("Execute the AWS SQS" in func.__doc__)
         self.assertTrue(hasattr(func, "__signature__"))
 
-    @patch("aws_service_mcp_generator.generator.boto3.Session")
+    @patch("awslabs.aws_service_mcp_generator.generator.boto3.Session")
     def test_tool_configuration_validation(self, mock_session):
         """Test validation of tool configuration"""
         mock_session.return_value = self.boto3_session_mock
@@ -254,8 +254,8 @@ class TestAWSToolGenerator(unittest.TestCase):
                 }
             )
 
-    @patch("aws_service_mcp_generator.generator.boto3.Session")
-    @patch("aws_service_mcp_generator.generator.botocore.session.get_session")
+    @patch("awslabs.aws_service_mcp_generator.generator.boto3.Session")
+    @patch("awslabs.aws_service_mcp_generator.generator.botocore.session.get_session")
     def test_function_override(self, mock_botocore_session, mock_boto3_session):
         """Test function override in tool configuration"""
         mock_boto3_session.return_value = self.boto3_session_mock
@@ -297,8 +297,8 @@ class TestAWSToolGenerator(unittest.TestCase):
         self.assertTrue(callable(args[1]))  # client_getter is callable
         self.assertEqual(args[2], "get_queue_url")
 
-    @patch("aws_service_mcp_generator.generator.boto3.Session")
-    @patch("aws_service_mcp_generator.generator.botocore.session.get_session")
+    @patch("awslabs.aws_service_mcp_generator.generator.boto3.Session")
+    @patch("awslabs.aws_service_mcp_generator.generator.botocore.session.get_session")
     def test_validator(self, mock_botocore_session, mock_boto3_session):
         """Test validator in tool configuration"""
         mock_boto3_session.return_value = self.boto3_session_mock
@@ -361,8 +361,8 @@ class TestAWSToolGenerator(unittest.TestCase):
         result = asyncio.run(operation_func(region="us-east-1"))
         self.assertEqual(result, {"error": "Validation failed"})
 
-    @patch("aws_service_mcp_generator.generator.boto3.Session")
-    @patch("aws_service_mcp_generator.generator.botocore.session.get_session")
+    @patch("awslabs.aws_service_mcp_generator.generator.boto3.Session")
+    @patch("awslabs.aws_service_mcp_generator.generator.botocore.session.get_session")
     def test_client_error_handling(self, mock_botocore_session, mock_boto3_session):
         """Test handling of ClientError in operation functions"""
         mock_boto3_session.return_value = self.boto3_session_mock
@@ -390,7 +390,7 @@ class TestAWSToolGenerator(unittest.TestCase):
         self.mcp_mock.tool.return_value = test_func
         
         # Patch ClientError in the module
-        with patch("aws_service_mcp_generator.generator.ClientError", MockClientError):
+        with patch("awslabs.aws_service_mcp_generator.generator.ClientError", MockClientError):
             # Setup client mock with operations that raises ClientError
             error_response = {
                 "Error": {
@@ -422,7 +422,7 @@ class TestAWSToolGenerator(unittest.TestCase):
             self.assertEqual(result["error"], "The specified queue does not exist")
             self.assertEqual(result["code"], "QueueDoesNotExist")
 
-    @patch("aws_service_mcp_generator.generator.boto3.Session")
+    @patch("awslabs.aws_service_mcp_generator.generator.boto3.Session")
     def test_get_mcp(self, mock_session):
         """Test get_mcp method"""
         mock_session.return_value = self.boto3_session_mock
@@ -435,8 +435,8 @@ class TestAWSToolGenerator(unittest.TestCase):
         
         self.assertEqual(generator.get_mcp(), self.mcp_mock)
 
-    @patch("aws_service_mcp_generator.generator.boto3.Session")
-    @patch("aws_service_mcp_generator.generator.botocore.session.get_session")
+    @patch("awslabs.aws_service_mcp_generator.generator.boto3.Session")
+    @patch("awslabs.aws_service_mcp_generator.generator.botocore.session.get_session")
     def test_skip_param_documentation(self, mock_botocore_session, mock_boto3_session):
         """Test skip_param_documentation flag"""
         mock_boto3_session.return_value = self.boto3_session_mock
@@ -491,8 +491,8 @@ class TestAWSToolGenerator(unittest.TestCase):
         self.assertEqual(params_without_docs[0][3], ("",))
 
 
-    @patch("aws_service_mcp_generator.generator.boto3.Session")
-    @patch("aws_service_mcp_generator.generator.botocore.session.get_session")
+    @patch("awslabs.aws_service_mcp_generator.generator.boto3.Session")
+    @patch("awslabs.aws_service_mcp_generator.generator.botocore.session.get_session")
     def test_annotated_field_for_optional_params(self, mock_botocore_session, mock_boto3_session):
         """Test that optional parameters use Annotated with Field for documentation and have None as default"""
         from typing import Annotated, get_args, get_origin

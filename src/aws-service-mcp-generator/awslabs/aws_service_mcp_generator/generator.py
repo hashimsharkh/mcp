@@ -23,7 +23,7 @@ class AWSToolGenerator:
         service_name: str,
         service_display_name: str,
         mcp: FastMCP,
-        tool_configuration: Dict[str, Dict[str, Any]] = None,
+        tool_configuration: Dict[str, Dict[str, Any]] = {},
         skip_param_documentation: bool = False,
     ):
         """
@@ -93,18 +93,19 @@ class AWSToolGenerator:
         return sorted(operations)
 
     def __handle_function_override(
-        self, operation: str, func_override: OVERRIDE_FUNC_TYPE
+        self, operation: str, func_override: OVERRIDE_FUNC_TYPE | None
     ) -> None:
         """
         Handle overriding the behaviour of an operation by invoking user provided function. It will pass a boto3 client (default to us-east-1), current MCP server, and the current operation.
         """
 
         # A getter for the boto3 client
-        def boto3_client_getter(region: str, service_name: str = self.service_name):
+        def boto3_client_getter(region: str, service_name: str = self.service_name) -> Any:
             aws_profile = os.environ.get("AWS_PROFILE", "default")
             return boto3.Session(profile_name=aws_profile, region_name=region).client(service_name)
 
-        func_override(self.mcp, boto3_client_getter, operation)
+        if func_override is not None:
+            func_override(self.mcp, boto3_client_getter, operation)
 
     def __create_operation_function(
         self,
