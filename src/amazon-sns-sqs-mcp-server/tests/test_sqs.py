@@ -1,5 +1,6 @@
 """Tests for the SQS module of amazon-sns-sqs-mcp-server."""
 import pytest
+from typing import Callable
 from awslabs.amazon_sns_sqs_mcp_server.common import MCP_SERVER_VERSION_TAG
 from awslabs.amazon_sns_sqs_mcp_server.consts import MCP_SERVER_VERSION
 from awslabs.amazon_sns_sqs_mcp_server.sqs import (
@@ -81,7 +82,7 @@ class TestSQSTools:
         tool_config_capture = {}
         
         # Define a mock AWSToolGenerator that captures the tool_configuration
-        def mock_aws_tool_generator(service_name, service_display_name, mcp, tool_configuration, skip_param_documentation):
+        def mock_aws_tool_generator(service_name, service_display_name, mcp, tool_configuration, skip_param_documentation) -> MagicMock:
             nonlocal tool_config_capture
             tool_config_capture = tool_configuration
             return MagicMock()
@@ -138,7 +139,7 @@ class TestSQSTools:
         mock_mcp = MagicMock()
 
         # Capture the decorated function
-        decorated_func = None
+        decorated_func = None  # type: Callable | None
         def capture_func(func):
             nonlocal decorated_func
             decorated_func = func
@@ -204,7 +205,7 @@ class TestSQSTools:
         mock_mcp = MagicMock()
 
         # Capture the decorated function
-        decorated_func = None
+        decorated_func = None  # type: Callable | None
         def capture_func(func):
             nonlocal decorated_func
             decorated_func = func
@@ -222,6 +223,7 @@ class TestSQSTools:
 
         # Test with FIFO queue and custom attributes
         mock_sqs_client.create_queue.reset_mock()
+        assert decorated_func is not None, "decorated_func should not be None"
         result = decorated_func(
             queue_name="test-queue.fifo",
             attributes={"ContentBasedDeduplication": "true", "VisibilityTimeout": "60"},
