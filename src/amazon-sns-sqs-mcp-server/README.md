@@ -140,13 +140,6 @@ The MCP server implements a security mechanism that only allows modification of 
 - Use separate AWS profiles for different environments (dev, test, prod)
 - Implement proper error handling in your client applications
 
-## Troubleshooting
-
-- If you encounter permission errors, verify your IAM user has the correct policies attached
-- For connection issues, check network configurations and security groups
-- If resource modification fails with a tag validation error, it means the resource was not created by the MCP server
-- For general Amazon SNS / SQS issues, consult the [Amazon SNS documentation](https://docs.aws.amazon.com/sns/) , [Amazon SQS documentation](https://docs.aws.amazon.com/sqs/)
-
 ## Security Considerations
 
 When using this MCP server, consider:
@@ -155,6 +148,13 @@ When using this MCP server, consider:
 - Only resources created by the MCP server can be modified by it since they are tagged
 - Resource creation is disabled by default, enable it by setting the `--allow-resource-creation` flag on
 
+
+## Troubleshooting
+
+- If you encounter permission errors, verify your IAM user has the correct policies attached
+- For connection issues, check network configurations and security groups
+- If resource modification fails with a tag validation error, it means the resource was not created by the MCP server
+- For general Amazon SNS / SQS issues, consult the [Amazon SNS documentation](https://docs.aws.amazon.com/sns/) , [Amazon SQS documentation](https://docs.aws.amazon.com/sqs/)
 
 ## Version
 
