@@ -106,7 +106,6 @@ def register_sqs_tools(mcp: FastMCP, disallow_resource_creation: bool = False):
         tool_configuration[operation] = {'ignore': True}
     if disallow_resource_creation:
         tool_configuration['create_queue'] = {'ignore': True}
-        tool_configuration['delete_queue'] = {'ignore': True}
 
     sqs_generator = AWSToolGenerator(
         service_name='sqs',
@@ -114,5 +113,6 @@ def register_sqs_tools(mcp: FastMCP, disallow_resource_creation: bool = False):
         mcp=mcp,
         tool_configuration=tool_configuration,
         skip_param_documentation=True,
+        mcp_server_version=MCP_SERVER_VERSION,
     )
     sqs_generator.generate()

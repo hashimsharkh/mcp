@@ -17,7 +17,7 @@ graph LR
     style D fill:#fbb,stroke:#333,stroke-width:2px
 ```
 
-From a **security** perspective, this server implements resource tagging to ensure that only resources created through the MCP server can be modified by it. This prevents unauthorized modifications to existing Amazon MQ resources that were not created by the MCP server.
+From a **security** perspective, this server implements resource tagging to ensure that only resources created through the MCP server can be modified by it. This prevents unauthorized modifications to existing Amazon SNS/SQS resources that were not created by the MCP server.
 
 ## Key Capabilities
 
@@ -72,7 +72,7 @@ AWS_SESSION_TOKEN=<from the profile you set up>
 ```json
   {
     "mcpServers": {
-      "awslabs.lambda-mcp-server": {
+      "awslabs.sns-sqs-mcp-server": {
         "command": "docker",
         "args": [
           "run",
@@ -129,24 +129,16 @@ uv run awslabs.amazon-sns-sqs-mcp-server --disallow-resource-creation
 The MCP server implements a security mechanism that only allows modification of resources that were created by the MCP server itself. This is achieved by:
 
 1. Automatically tagging all created resources with a `mcp_server_version` tag
-2. Validating this tag before allowing any mutative actions (update, delete, reboot)
+2. Validating this tag before allowing any mutative actions (update, delete) - this is a deterministic check that ensures only resources created by the MCP server can be modified
 3. Rejecting operations on resources that don't have the appropriate tag
-4. A2P Mutative Operations are not enabled
+4. Application-to-Person (A2P) messaging mutative operations are not enabled by default for security reasons
 
 ## Best Practices
 
-- Use descriptive broker names to easily identify resources
+- Use descriptive topic and queue names to easily identify resources
 - Follow the principle of least privilege when setting up IAM permissions
 - Use separate AWS profiles for different environments (dev, test, prod)
-- Monitor broker metrics and logs for performance and issues
 - Implement proper error handling in your client applications
-
-## Security Considerations
-
-When using this MCP server, consider:
-
-- The MCP server needs permissions to create and manage Amazon SNS / SQS resources
-- Only resources created by the MCP server can be modified by it
 
 ## Troubleshooting
 
