@@ -131,7 +131,7 @@ The MCP server implements a security mechanism that only allows modification of 
 1. Automatically tagging all created resources with a `mcp_server_version` tag
 2. Validating this tag before allowing any mutative actions (update, delete) - this is a deterministic check that ensures only resources created by the MCP server can be modified
 3. Rejecting operations on resources that don't have the appropriate tag
-4. Application-to-Person (A2P) messaging mutative operations are not enabled by default for security reasons
+4. [Application-to-Person](https://docs.aws.amazon.com/sns/latest/dg/sns-user-notifications.html) (A2P) messaging mutative operations are not enabled by default for security reasons
 
 ## Best Practices
 
