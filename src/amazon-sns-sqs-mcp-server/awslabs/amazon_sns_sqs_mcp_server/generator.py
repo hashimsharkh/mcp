@@ -18,6 +18,7 @@ import botocore.session
 import inspect
 import os
 import sys
+from botocore.config import Config
 from botocore.exceptions import ClientError
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
@@ -40,6 +41,7 @@ class AWSToolGenerator:
         mcp: FastMCP,
         tool_configuration: Dict[str, Dict[str, Any]] | None = None,
         skip_param_documentation: bool = False,
+        mcp_server_version: str = '0.0.0',
     ):
         """Initialize the AWS Service Tool.
 
@@ -49,6 +51,7 @@ class AWSToolGenerator:
             mcp: The MCP server instance
             tool_configuration: Configuration for each tool
             skip_param_documentation: If True, parameter documentation will be skipped
+            mcp_server_version: The mcp server version used which will be passed in to the boto3 clients
 
         """
         self.service_name = service_name
@@ -58,6 +61,7 @@ class AWSToolGenerator:
         self.tool_configuration = tool_configuration or {}
         self.skip_param_documentation = skip_param_documentation
         self.__validate_tool_configuration()
+        self.config = Config(user_agent_extra=f'MCP/{self.service_name}/{mcp_server_version}')
 
     def generate(self):
         """Augment the MCP server with tools derived from the boto3 client and tool configurations."""
@@ -99,7 +103,7 @@ class AWSToolGenerator:
             aws_profile = os.environ.get('AWS_PROFILE', 'default')
             self.clients[client_key] = boto3.Session(
                 profile_name=aws_profile, region_name=region
-            ).client(self.service_name)
+            ).client(service_name=self.service_name, config=self.config)
         return self.clients[client_key]
 
     def __get_operations(self) -> List[str]:
@@ -120,7 +124,9 @@ class AWSToolGenerator:
         # A getter for the boto3 client
         def boto3_client_getter(region: str, service_name: str = self.service_name):
             aws_profile = os.environ.get('AWS_PROFILE', 'default')
-            return boto3.Session(profile_name=aws_profile, region_name=region).client(service_name)
+            return boto3.Session(profile_name=aws_profile, region_name=region).client(
+                service_name=self.service_name, config=self.config
+            )
 
         func_override(self.mcp, boto3_client_getter, operation)
 
