@@ -133,7 +133,6 @@ def register_sns_tools(mcp: FastMCP, disallow_resource_creation: bool = False):
         tool_configuration['create_topic'] = {'ignore': True}
         tool_configuration['delete_topic'] = {'ignore': True}
 
-
     sns_generator = AWSToolGenerator(
         service_name='sns',
         service_display_name='Amazon SNS',

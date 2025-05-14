@@ -18,6 +18,7 @@ import botocore.session
 import inspect
 import os
 import sys
+from awslabs.amazon_sns_sqs_mcp_server.consts import MCP_SERVER_VERSION
 from botocore.config import Config
 from botocore.exceptions import ClientError
 from mcp.server.fastmcp import FastMCP
@@ -41,7 +42,7 @@ class AWSToolGenerator:
         mcp: FastMCP,
         tool_configuration: Dict[str, Dict[str, Any]] | None = None,
         skip_param_documentation: bool = False,
-        mcp_server_version: str = '0.0.0',
+        mcp_server_version: str = MCP_SERVER_VERSION,
     ):
         """Initialize the AWS Service Tool.
 
