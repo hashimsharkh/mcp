@@ -512,46 +512,30 @@ class TestAWSToolGenerator(unittest.TestCase):
         self.assertEqual(params_without_docs[0][3], ('',))
 
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
-    @patch('awslabs.amazon_sns_sqs_mcp_server.generator.botocore.session.get_session')
-    def test_name_override(self, mock_botocore_session, mock_boto3_session):
-        """Test name_override functionality."""
-        mock_boto3_session.return_value = self.boto3_session_mock
+    def test_boto3_client_getter(self, mock_session):
+        """Test boto3_client_getter passes config to client creation."""
+        # Setup mock session
+        session_mock = MagicMock()
+        mock_session.return_value = session_mock
 
-        # Setup mock for botocore session
-        botocore_session_mock = MagicMock()
-        mock_botocore_session.return_value = botocore_session_mock
-
-        # Setup service model mock
-        service_model_mock = MagicMock()
-        botocore_session_mock.get_service_model.return_value = service_model_mock
-
-        # Setup operation model mock
-        operation_model_mock = MagicMock()
-        service_model_mock.operation_model.return_value = operation_model_mock
-
-        # Setup input shape mock with no members
-        input_shape_mock = MagicMock()
-        input_shape_mock.members = {}
-        input_shape_mock.required_members = []
-        operation_model_mock.input_shape = input_shape_mock
-
+        # Create generator with config
         generator = AWSToolGenerator(
-            service_name='sqs',
-            service_display_name='SQS',
+            service_name='test-service',
+            service_display_name='Test Service',
             mcp=self.mcp_mock,
-            mcp_server_version='10.15.99',
+            mcp_server_version='1.0.0',
         )
 
-        # Create operation function with default name
-        default_func = generator._AWSToolGenerator__create_operation_function('get_queue_url')
-        self.assertEqual(default_func.__name__, 'get_queue_url')
+        # Call boto3_client_getter directly
+        def override_func(mcp, client_getter, op):
+            _ = client_getter('us-west-2')  # Actually call the client_getter
+            # Verify config was passed to client creation
+            session_mock.client.assert_called_once_with(
+                service_name='test-service', config=generator.config
+            )
 
-        # Create operation function with name override
-        custom_name = 'custom_queue_url_getter'
-        override_func = generator._AWSToolGenerator__create_operation_function(
-            'get_queue_url', name_override=custom_name
-        )
-        self.assertEqual(override_func.__name__, custom_name)
+        # Use the override function to test boto3_client_getter
+        generator._AWSToolGenerator__handle_function_override('test_operation', override_func)
 
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.botocore.session.get_session')
