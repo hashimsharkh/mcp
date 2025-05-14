@@ -147,6 +147,15 @@ The MCP server implements a security mechanism that only allows modification of 
 - If resource modification fails with a tag validation error, it means the resource was not created by the MCP server
 - For general Amazon SNS / SQS issues, consult the [Amazon SNS documentation](https://docs.aws.amazon.com/sns/) , [Amazon SQS documentation](https://docs.aws.amazon.com/sqs/)
 
+## Security Considerations
+
+When using this MCP server, consider:
+
+- The MCP server needs permissions to create and manage Amazon SNS / SQS resources
+- Only resources created by the MCP server can be modified by it since they are tagged
+- Resource creation is disabled by default, enable it by setting the `--allow-resource-creation` flag on
+
+
 ## Version
 
 Current MCP server version: 0.0.0

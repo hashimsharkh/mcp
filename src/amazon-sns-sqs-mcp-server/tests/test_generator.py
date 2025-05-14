@@ -41,7 +41,10 @@ class TestAWSToolGenerator(unittest.TestCase):
 
         # Test with minimal parameters
         generator = AWSToolGenerator(
-            service_name='sqs', service_display_name='SQS', mcp=self.mcp_mock
+            service_name='sqs',
+            service_display_name='SQS',
+            mcp=self.mcp_mock,
+            mcp_server_version='15.0.1',
         )
 
         self.assertEqual(generator.service_name, 'sqs')
@@ -56,6 +59,7 @@ class TestAWSToolGenerator(unittest.TestCase):
             service_name='sns',
             service_display_name='SNS',
             mcp=self.mcp_mock,
+            mcp_server_version='10.15.99',
             tool_configuration=tool_config,
         )
 
@@ -66,6 +70,7 @@ class TestAWSToolGenerator(unittest.TestCase):
             service_name='sns',
             service_display_name='SNS',
             mcp=self.mcp_mock,
+            mcp_server_version='10.15.99',
             skip_param_documentation=True,
         )
 
@@ -108,7 +113,10 @@ class TestAWSToolGenerator(unittest.TestCase):
 
         # Create generator and call generate
         generator = AWSToolGenerator(
-            service_name='sqs', service_display_name='SQS', mcp=self.mcp_mock
+            service_name='sqs',
+            service_display_name='SQS',
+            mcp=self.mcp_mock,
+            mcp_server_version='10.15.99',
         )
 
         generator.generate()
@@ -139,7 +147,10 @@ class TestAWSToolGenerator(unittest.TestCase):
         mock_session.side_effect = get_session
 
         generator = AWSToolGenerator(
-            service_name='sqs', service_display_name='SQS', mcp=self.mcp_mock
+            service_name='sqs',
+            service_display_name='SQS',
+            mcp=self.mcp_mock,
+            mcp_server_version='10.15.99',
         )
 
         # Access private method for testing
@@ -186,7 +197,10 @@ class TestAWSToolGenerator(unittest.TestCase):
         input_shape_mock.required_members = ['param1']
 
         generator = AWSToolGenerator(
-            service_name='sqs', service_display_name='SQS', mcp=self.mcp_mock
+            service_name='sqs',
+            service_display_name='SQS',
+            mcp=self.mcp_mock,
+            mcp_server_version='10.15.99',
         )
 
         # Access private method for testing
@@ -208,6 +222,7 @@ class TestAWSToolGenerator(unittest.TestCase):
                 service_name='sqs',
                 service_display_name='SQS',
                 mcp=self.mcp_mock,
+                mcp_server_version='10.15.99',
                 tool_configuration={
                     'operation1': {
                         'ignore': True,
@@ -222,6 +237,7 @@ class TestAWSToolGenerator(unittest.TestCase):
                 service_name='sqs',
                 service_display_name='SQS',
                 mcp=self.mcp_mock,
+                mcp_server_version='10.15.99',
                 tool_configuration={
                     'operation1': {'ignore': True, 'documentation_override': 'Custom docs'}
                 },
@@ -233,6 +249,7 @@ class TestAWSToolGenerator(unittest.TestCase):
                 service_name='sqs',
                 service_display_name='SQS',
                 mcp=self.mcp_mock,
+                mcp_server_version='10.15.99',
                 tool_configuration={
                     'operation1': {
                         'func_override': lambda mcp, client_getter, op: None,
@@ -247,6 +264,7 @@ class TestAWSToolGenerator(unittest.TestCase):
                 service_name='sqs',
                 service_display_name='SQS',
                 mcp=self.mcp_mock,
+                mcp_server_version='10.15.99',
                 tool_configuration={'operation1': {}},
             )
 
@@ -277,6 +295,7 @@ class TestAWSToolGenerator(unittest.TestCase):
             service_name='sqs',
             service_display_name='SQS',
             mcp=self.mcp_mock,
+            mcp_server_version='10.15.99',
             tool_configuration={'get_queue_url': {'func_override': override_func_mock}},
         )
 
@@ -326,6 +345,7 @@ class TestAWSToolGenerator(unittest.TestCase):
             service_name='sqs',
             service_display_name='SQS',
             mcp=self.mcp_mock,
+            mcp_server_version='10.15.99',
             tool_configuration={'get_queue_url': {'validator': validator_mock}},
         )
 
@@ -394,7 +414,10 @@ class TestAWSToolGenerator(unittest.TestCase):
 
             # Create generator
             generator = AWSToolGenerator(
-                service_name='sqs', service_display_name='SQS', mcp=self.mcp_mock
+                service_name='sqs',
+                service_display_name='SQS',
+                mcp=self.mcp_mock,
+                mcp_server_version='10.15.99',
             )
 
             # Create the operation function directly
@@ -417,7 +440,10 @@ class TestAWSToolGenerator(unittest.TestCase):
         mock_session.return_value = self.boto3_session_mock
 
         generator = AWSToolGenerator(
-            service_name='sqs', service_display_name='SQS', mcp=self.mcp_mock
+            service_name='sqs',
+            service_display_name='SQS',
+            mcp=self.mcp_mock,
+            mcp_server_version='10.15.99',
         )
 
         self.assertEqual(generator.get_mcp(), self.mcp_mock)
@@ -454,7 +480,10 @@ class TestAWSToolGenerator(unittest.TestCase):
 
         # Create generator with skip_param_documentation=False (default)
         generator_with_docs = AWSToolGenerator(
-            service_name='sqs', service_display_name='SQS', mcp=self.mcp_mock
+            service_name='sqs',
+            service_display_name='SQS',
+            mcp=self.mcp_mock,
+            mcp_server_version='10.15.99',
         )
 
         # Create generator with skip_param_documentation=True
@@ -462,6 +491,7 @@ class TestAWSToolGenerator(unittest.TestCase):
             service_name='sqs',
             service_display_name='SQS',
             mcp=self.mcp_mock,
+            mcp_server_version='10.15.99',
             skip_param_documentation=True,
         )
 
@@ -506,7 +536,10 @@ class TestAWSToolGenerator(unittest.TestCase):
         operation_model_mock.input_shape = input_shape_mock
 
         generator = AWSToolGenerator(
-            service_name='sqs', service_display_name='SQS', mcp=self.mcp_mock
+            service_name='sqs',
+            service_display_name='SQS',
+            mcp=self.mcp_mock,
+            mcp_server_version='10.15.99',
         )
 
         # Create operation function with default name
@@ -561,7 +594,10 @@ class TestAWSToolGenerator(unittest.TestCase):
 
         # Create generator
         generator = AWSToolGenerator(
-            service_name='sqs', service_display_name='SQS', mcp=self.mcp_mock
+            service_name='sqs',
+            service_display_name='SQS',
+            mcp=self.mcp_mock,
+            mcp_server_version='10.15.99',
         )
 
         # Create the operation function

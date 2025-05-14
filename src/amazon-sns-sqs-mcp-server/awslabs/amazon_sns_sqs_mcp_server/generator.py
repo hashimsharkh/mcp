@@ -18,7 +18,6 @@ import botocore.session
 import inspect
 import os
 import sys
-from awslabs.amazon_sns_sqs_mcp_server.consts import MCP_SERVER_VERSION
 from botocore.config import Config
 from botocore.exceptions import ClientError
 from mcp.server.fastmcp import FastMCP
@@ -40,9 +39,9 @@ class AWSToolGenerator:
         service_name: str,
         service_display_name: str,
         mcp: FastMCP,
+        mcp_server_version: str,
         tool_configuration: Dict[str, Dict[str, Any]] | None = None,
         skip_param_documentation: bool = False,
-        mcp_server_version: str = MCP_SERVER_VERSION,
     ):
         """Initialize the AWS Service Tool.
 
@@ -50,9 +49,9 @@ class AWSToolGenerator:
             service_name: The AWS service name (e.g., 'sns', 'sqs')
             service_display_name: Display name for the service (defaults to uppercase of service_name)
             mcp: The MCP server instance
+            mcp_server_version: The mcp server version used which will be passed in to the boto3 clients
             tool_configuration: Configuration for each tool
             skip_param_documentation: If True, parameter documentation will be skipped
-            mcp_server_version: The mcp server version used which will be passed in to the boto3 clients
 
         """
         self.service_name = service_name
@@ -62,7 +61,9 @@ class AWSToolGenerator:
         self.tool_configuration = tool_configuration or {}
         self.skip_param_documentation = skip_param_documentation
         self.__validate_tool_configuration()
-        self.config = Config(user_agent_extra=f'MCP/{self.service_name}/{mcp_server_version}')
+        self.config = Config(
+            user_agent_extra=f'awslabs/mcp/{self.service_name}/{mcp_server_version}'
+        )
 
     def generate(self):
         """Augment the MCP server with tools derived from the boto3 client and tool configurations."""
