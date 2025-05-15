@@ -31,6 +31,7 @@ A suite of specialized MCP servers that help you get the most out of AWS, wherev
     - [Postgres MCP Server](#postgres-mcp-server)
     - [Amazon MQ MCP Server](#amazon-mq-mcp-server)
     - [Synthetic Data MCP Server](#synthetic-data-mcp-server)
+    - [AWS DynamoDB MCP Server](#aws-dynamodb-mcp-server)
     - [Use Cases for the Servers](#use-cases-for-the-servers)
   - [Installation and Setup](#installation-and-setup)
     - [Running MCP servers in containers](#running-mcp-servers-in-containers)
@@ -299,6 +300,15 @@ A server for generating, validating, and managing synthetic data.
 - Storage Integration: Load data to various storage targets (S3) with support for multiple formats and configurations
 
 [Learn more](src/syntheticdata-mcp-server/README.md) | [Documentation](https://awslabs.github.io/mcp/servers/syntheticdata-mcp-server/)
+
+### AWS DynamoDB MCP Server
+
+A server for interacting with AWS DynamoDB
+
+- Control Plane operations like table creation, table update, global secondary index, streams, global table management, backup, restore, etc.
+- Data Plane operations like put, get, update, query and scan.
+
+[Learn more](src/dynamodb-mcp-server/README.md)
 
 ### Use Cases for the Servers
 
