@@ -509,7 +509,7 @@ class TestAWSToolGenerator(unittest.TestCase):
         self.assertEqual(params_with_docs[0][3], 'Test documentation')
 
         # Verify that documentation is empty when skip_param_documentation=True
-        self.assertEqual(params_without_docs[0][3], ('',))
+        self.assertEqual(params_without_docs[0][3], '')
 
     @patch('awslabs.amazon_sns_sqs_mcp_server.generator.boto3.Session')
     def test_boto3_client_getter(self, mock_session):
