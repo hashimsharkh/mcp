@@ -506,7 +506,7 @@ class TestAWSToolGenerator(unittest.TestCase):
         )
 
         # Verify that documentation is included when skip_param_documentation=False
-        self.assertEqual(params_with_docs[0][3], ('Test documentation',))
+        self.assertEqual(params_with_docs[0][3], 'Test documentation')
 
         # Verify that documentation is empty when skip_param_documentation=True
         self.assertEqual(params_without_docs[0][3], ('',))
